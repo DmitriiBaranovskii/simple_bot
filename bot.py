@@ -1,4 +1,5 @@
 import logging
+import ephem
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from settings import API_KEY
 
@@ -18,10 +19,19 @@ def talk_to_me(update, context):
     print(f'Message:  {update.message.text}')
     update.message.reply_text(update.message.text)
 
+def constellation(update, context):
+    planet = update.message.text.split(' ')[1].lower().capitalize()
+    planet = eval(f'ephem.{planet}()')
+    planet.compute()
+    const = ephem.constellation(planet)
+    update.message.reply_text(f'{planet.name} сейчас в созведии {const}')
+
+
 def main():
     mybot = Updater(API_KEY,use_context=True)
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler('start',greet_user))
+    dp.add_handler(CommandHandler('planet',constellation))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
 
     logging.info('Bot is started!')
