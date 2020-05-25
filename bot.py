@@ -10,6 +10,7 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S')
 
+planets = {name : f'ephem.{name}()' for _0, _1, name in ephem._libastro.builtin_planets()}
 
 def greet_user(update, context):
     print('Start is calling')
@@ -21,10 +22,14 @@ def talk_to_me(update, context):
 
 def constellation(update, context):
     planet = update.message.text.split(' ')[1].lower().capitalize()
-    planet = eval(f'ephem.{planet}()')
-    planet.compute()
-    const = ephem.constellation(planet)
-    update.message.reply_text(f'{planet.name} сейчас в созведии {const}')
+    print(planet)
+    if planet in planets:
+        planet = eval(planets[planet])
+        planet.compute()
+        const = ephem.constellation(planet)
+        update.message.reply_text(f'{planet.name} сейчас в созведии {const}')
+    else:
+        update.message.reply_text('Я такой планеты не знаю.')
 
 
 def main():
