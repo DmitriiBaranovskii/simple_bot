@@ -22,7 +22,6 @@ def talk_to_me(update, context):
 
 def constellation(update, context):
     planet = update.message.text.split(' ')[1].lower().capitalize()
-    print(planet)
     if planet in planets:
         planet = eval(planets[planet])
         planet.compute()
@@ -31,12 +30,28 @@ def constellation(update, context):
     else:
         update.message.reply_text('Я такой планеты не знаю.')
 
+def count_words(update, context):
+    words = update.message.text.split()
+    if len(words) == 1:
+        update.message.reply_text('Чтобы посчитать слова нужно написать хотя бы 1 слово')
+    else:
+        update.message.reply_text(f'{len(words)-1} слова')
+
+def next_full_moon(update, context):
+    try:
+        date = ephem.Date(update.message.text.split()[1])
+    except ValueError:
+        update.message.reply_text('Введите существующую дату в формате yyyy/mm/dd')
+    next = ephem.next_full_moon(date)
+    update.message.reply_text(f'Следующее полнолуние: {next}')
 
 def main():
     mybot = Updater(API_KEY,use_context=True)
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler('start',greet_user))
     dp.add_handler(CommandHandler('planet',constellation))
+    dp.add_handler(CommandHandler ('wordcount',count_words))
+    dp.add_handler(CommandHandler('next_full_moon', next_full_moon))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
 
     logging.info('Bot is started!')
